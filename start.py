@@ -1,20 +1,26 @@
 import subprocess
-import signal
 import sys
+import time
 
-bot_process = None
-web_process = None
+bot_process = subprocess.Popen(
+    [sys.executable, "-m", "bot.main"]
+)
+
+web_process = subprocess.Popen(
+    [sys.executable, "-m", "webapp.run"]
+)
 
 try:
-    bot_process = subprocess.Popen(
-        [sys.executable, "-m", "bot.main"]
-    )
+    while True:
+        if bot_process.poll() is not None:
+            print("Bot process exited.")
+            break
 
-    web_process = subprocess.Popen(
-        [sys.executable, "-m", "webapp.run"]
-    )
+        if web_process.poll() is not None:
+            print("Web process exited.")
+            break
 
-    bot_process.wait()
+        time.sleep(1)
 
 except KeyboardInterrupt:
     print("\nStopping HyperAuth...")
